@@ -8,13 +8,13 @@ from collections import defaultdict
 from sklearn.metrics import log_loss
 from torch import topk
 
-from ...training import losses
-from ...training.datasets.classifier_dataset import DeepFakeClassifierDataset
-from ...training.losses import WeightedLosses
-from ...training.tools.config import load_config
-from ...training.tools.utils import create_optimizer, AverageMeter
-from ...training.transforms.albu import IsotropicResize
-from ...training.zoo import classifiers
+from .training import losses
+from .training.datasets.classifier_dataset import DeepFakeClassifierDataset
+from .training.losses import WeightedLosses
+from .training.tools.config import load_config
+from .training.tools.utils import create_optimizer, AverageMeter
+from .training.transforms.albu import IsotropicResize
+from .training.zoo import classifiers
 
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
