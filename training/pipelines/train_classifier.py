@@ -101,10 +101,17 @@ def main():
     arg("--no-oversample", action="store_true")
     arg("--no-hardcore", action="store_true")
     arg("--only-changed-frames", action="store_true")
-    arg("--opt", default="sgd", type=str)
-    arg("--batch_size", default=1, type=int)
-    arg("--lr", default=0.1, type=float)
-    arg("--wd", default=0.01, type=float)
+
+    optimizer = str(os.environ.get("optimizer", "adam"))
+    batch_size = int(os.environ.get("batch_size", 1))
+    lr = float(os.environ.get("learning_rate", 0.01))
+    wd = float(os.environ.get("weight_decay", 0.01))
+    print(f"hyper param == {optimizer} == {batch_size} == {lr} == {wd}")
+
+    # arg("--opt", default="sgd", type=str)
+    # arg("--batch_size", default=1, type=int)
+    # arg("--lr", default=0.1, type=float)
+    # arg("--wd", default=0.01, type=float)
 
     args = parser.parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
@@ -135,11 +142,10 @@ def main():
     loss = WeightedLosses(loss_fn, weights)
     loss_functions = {"classifier_loss": loss}
     # optimizer, scheduler = create_optimizer(conf["optimizer"], model)
-    optimizer, scheduler = create_optimizer(args.opt, args.lr, args.wd, model)
+    optimizer, scheduler = create_optimizer(optimizer, lr, wd, model)
     bce_best = 100
     start_epoch = 0
     # batch_size = conf["optimizer"]["batch_size"]
-    batch_size = args.batch_size
 
     data_train = DeepFakeClassifierDataset(
         mode="train",
