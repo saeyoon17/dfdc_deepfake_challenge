@@ -5,3 +5,4 @@ pandas
 timm
 torch
 torchvision
+wandb
