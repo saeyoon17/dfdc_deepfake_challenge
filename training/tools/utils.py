@@ -87,23 +87,24 @@ def create_optimizer(optimizer_config, lr, wd, model, master_params=None):
     else:
         raise KeyError("unrecognized optimizer {}".format(optimizer_config))
 
-    if optimizer_config["schedule"]["type"] == "step":
-        scheduler = LRStepScheduler(optimizer, **optimizer_config["schedule"]["params"])
-    elif optimizer_config["schedule"]["type"] == "clr":
-        scheduler = CyclicLR(optimizer, **optimizer_config["schedule"]["params"])
-    elif optimizer_config["schedule"]["type"] == "multistep":
-        scheduler = MultiStepLR(optimizer, **optimizer_config["schedule"]["params"])
-    elif optimizer_config["schedule"]["type"] == "exponential":
-        scheduler = ExponentialLRScheduler(optimizer, **optimizer_config["schedule"]["params"])
-    elif optimizer_config["schedule"]["type"] == "poly":
-        scheduler = PolyLR(optimizer, **optimizer_config["schedule"]["params"])
-    elif optimizer_config["schedule"]["type"] == "constant":
-        scheduler = lr_scheduler.LambdaLR(optimizer, lambda epoch: 1.0)
-    elif optimizer_config["schedule"]["type"] == "linear":
+    # if optimizer_config["schedule"]["type"] == "step":
+    #     scheduler = LRStepScheduler(optimizer, **optimizer_config["schedule"]["params"])
+    # elif optimizer_config["schedule"]["type"] == "clr":
+    #     scheduler = CyclicLR(optimizer, **optimizer_config["schedule"]["params"])
+    # elif optimizer_config["schedule"]["type"] == "multistep":
+    #     scheduler = MultiStepLR(optimizer, **optimizer_config["schedule"]["params"])
+    # elif optimizer_config["schedule"]["type"] == "exponential":
+    #     scheduler = ExponentialLRScheduler(optimizer, **optimizer_config["schedule"]["params"])
+    # elif optimizer_config["schedule"]["type"] == "poly":
+    params = {"max_iter": 100500}
+    scheduler = PolyLR(optimizer, params)
+    # elif optimizer_config["schedule"]["type"] == "constant":
+    #     scheduler = lr_scheduler.LambdaLR(optimizer, lambda epoch: 1.0)
+    # elif optimizer_config["schedule"]["type"] == "linear":
 
-        def linear_lr(it):
-            return it * optimizer_config["schedule"]["params"]["alpha"] + optimizer_config["schedule"]["params"]["beta"]
+    # def linear_lr(it):
+    #     return it * optimizer_config["schedule"]["params"]["alpha"] + optimizer_config["schedule"]["params"]["beta"]
 
-        scheduler = lr_scheduler.LambdaLR(optimizer, linear_lr)
+    # scheduler = lr_scheduler.LambdaLR(optimizer, linear_lr)
 
     return optimizer, scheduler
