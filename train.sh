@@ -14,7 +14,9 @@ echo $WD
 cat ./configs/b7.json | jq .optimizer.batch_size=$BATCH_SIZE
 cat ./configs/b7.json | jq .optimizer.learning_rate=$LR
 cat ./configs/b7.json | jq .optimizer.weight_decay=$WD
-cat ./configs/b7.json | jq .optimizer.type='SGD'
+cat ./configs/b7.json | jq '.["optimizer.type"]'=$OPT
+
+'.["app-code"]'
 
 # python -u -m torch.distributed.launch --nproc_per_node=$NUM_GPUS --master_port 9902 training/pipelines/train_classifier.py \
 #  --distributed --config configs/b7.json --freeze-epochs 0 --test_every 1 --opt-level O1 --label-smoothing 0.01 --folds-csv folds.csv   --fold 0 --seed 111 --data-dir $ROOT_DIR --prefix b7_111_ > logs/b7_111_sweep_test
