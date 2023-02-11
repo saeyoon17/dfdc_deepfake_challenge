@@ -85,7 +85,7 @@ def create_optimizer(optimizer_config, lr, wd, model, master_params=None):
     elif optimizer_config == "RmsProp":
         optimizer = RMSprop(params, lr=lr, weight_decay=wd)
     else:
-        raise KeyError("unrecognized optimizer {}".format(optimizer_config["type"]))
+        raise KeyError("unrecognized optimizer {}".format(optimizer_config))
 
     if optimizer_config["schedule"]["type"] == "step":
         scheduler = LRStepScheduler(optimizer, **optimizer_config["schedule"]["params"])
