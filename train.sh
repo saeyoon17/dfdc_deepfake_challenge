@@ -14,7 +14,7 @@ echo $WD
 cat ./configs/b7.json | jq .optimizer.batch_size=$BATCH_SIZE
 cat ./configs/b7.json | jq .optimizer.learning_rate=$LR
 cat ./configs/b7.json | jq .optimizer.weight_decay=$WD
-cat ./configs/b7.json | jq '.["optimizer.type"]'=$OPT
+cat ./configs/b7.json | jq .optimizer.type=$OPT
 
 #'.["app-code"]'
 
