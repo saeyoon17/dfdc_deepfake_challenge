@@ -44,7 +44,7 @@ def extract_video(param, root_dir, crops_dir):
             h = ymax - ymin
             p_h = h // 3
             p_w = w // 3
-            crop = frame[max(ymin - p_h, 0):ymax + p_h, max(xmin - p_w, 0):xmax + p_w]
+            crop = frame[max(ymin - p_h, 0) : ymax + p_h, max(xmin - p_w, 0) : xmax + p_w]
             h, w = crop.shape[:2]
             crops.append(crop)
         img_dir = os.path.join(root_dir, crops_dir, id)
@@ -55,7 +55,7 @@ def extract_video(param, root_dir, crops_dir):
 
 def get_video_paths(root_dir):
     paths = []
-    for json_path in glob(os.path.join(root_dir, "*/metadata.json")):
+    for json_path in glob(os.path.join(root_dir, "*/small_metadata.json")):
         dir = Path(json_path).parent
         with open(json_path, "r") as f:
             metadata = json.load(f)
@@ -71,15 +71,15 @@ def get_video_paths(root_dir):
     return paths
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description="Extracts crops from video")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extracts crops from video")
     parser.add_argument("--root-dir", help="root directory")
     parser.add_argument("--crops-dir", help="crops directory")
 
     args = parser.parse_args()
     os.makedirs(os.path.join(args.root_dir, args.crops_dir), exist_ok=True)
     params = get_video_paths(args.root_dir)
+    print(params)
     with Pool(processes=cpu_count()) as p:
         with tqdm(total=len(params)) as pbar:
             for v in p.imap_unordered(partial(extract_video, root_dir=args.root_dir, crops_dir=args.crops_dir), params):
