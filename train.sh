@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ROOT_DIR='/input/dfdc/'
+ROOT_DIR='/root/dfdc-small-dataset/small_dataset'
 NUM_GPUS='2'
 OPT=$2
 BATCH_SIZE=$4
