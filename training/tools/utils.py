@@ -31,7 +31,8 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
-def create_optimizer(optimizer_config, model, master_params=None):
+
+def create_optimizer(optimizer_config, lr, wd, model, master_params=None):
     """Creates optimizer and schedule from configuration
 
     Parameters
@@ -48,55 +49,41 @@ def create_optimizer(optimizer_config, model, master_params=None):
     scheduler : LRScheduler
         The learning rate scheduler.
     """
-    if optimizer_config.get("classifier_lr", -1) != -1:
-        # Separate classifier parameters from all others
-        net_params = []
-        classifier_params = []
-        for k, v in model.named_parameters():
-            if not v.requires_grad:
-                continue
-            if k.find("encoder") != -1:
-                net_params.append(v)
-            else:
-                classifier_params.append(v)
-        params = [
-            {"params": net_params},
-            {"params": classifier_params, "lr": optimizer_config["classifier_lr"]},
-        ]
+    # if optimizer_config.get("classifier_lr", -1) != -1:
+    #     # Separate classifier parameters from all others
+    #     net_params = []
+    #     classifier_params = []
+    #     for k, v in model.named_parameters():
+    #         if not v.requires_grad:
+    #             continue
+    #         if k.find("encoder") != -1:
+    #             net_params.append(v)
+    #         else:
+    #             classifier_params.append(v)
+    #     params = [
+    #         {"params": net_params},
+    #         {"params": classifier_params, "lr": optimizer_config["classifier_lr"]},
+    #     ]
+    # else:
+    if master_params:
+        params = master_params
     else:
-        if master_params:
-            params = master_params
-        else:
-            params = model.parameters()
+        params = model.parameters()
 
-    if optimizer_config["type"] == "SGD":
-        optimizer = optim.SGD(params,
-                              lr=optimizer_config["learning_rate"],
-                              momentum=optimizer_config["momentum"],
-                              weight_decay=optimizer_config["weight_decay"],
-                              nesterov=optimizer_config["nesterov"])
-    elif optimizer_config["type"] == "FusedSGD":
-        optimizer = FusedSGD(params,
-                             lr=optimizer_config["learning_rate"],
-                             momentum=optimizer_config["momentum"],
-                             weight_decay=optimizer_config["weight_decay"],
-                             nesterov=optimizer_config["nesterov"])
-    elif optimizer_config["type"] == "Adam":
-        optimizer = optim.Adam(params,
-                               lr=optimizer_config["learning_rate"],
-                               weight_decay=optimizer_config["weight_decay"])
-    elif optimizer_config["type"] == "FusedAdam":
-        optimizer = FusedAdam(params,
-                              lr=optimizer_config["learning_rate"],
-                              weight_decay=optimizer_config["weight_decay"])
-    elif optimizer_config["type"] == "AdamW":
-        optimizer = AdamW(params,
-                               lr=optimizer_config["learning_rate"],
-                               weight_decay=optimizer_config["weight_decay"])
-    elif optimizer_config["type"] == "RmsProp":
-        optimizer = RMSprop(params,
-                               lr=optimizer_config["learning_rate"],
-                               weight_decay=optimizer_config["weight_decay"])
+    mmt = 0.9
+    nes = True
+    if optimizer_config == "SGD":
+        optimizer = optim.SGD(params, lr=lr, momentum=mmt, weight_decay=wd, nesterov=nes)
+    elif optimizer_config == "FusedSGD":
+        optimizer = FusedSGD(params, lr=lr, momentum=mmt, weight_decay=wd, nesterov=nes)
+    elif optimizer_config == "Adam":
+        optimizer = optim.Adam(params, lr=lr, weight_decay=wd)
+    elif optimizer_config == "FusedAdam":
+        optimizer = FusedAdam(params, lr=lr, weight_decay=wd)
+    elif optimizer_config == "AdamW":
+        optimizer = AdamW(params, lr=lr, weight_decay=wd)
+    elif optimizer_config == "RmsProp":
+        optimizer = RMSprop(params, lr=lr, weight_decay=wd)
     else:
         raise KeyError("unrecognized optimizer {}".format(optimizer_config["type"]))
 
@@ -113,6 +100,7 @@ def create_optimizer(optimizer_config, model, master_params=None):
     elif optimizer_config["schedule"]["type"] == "constant":
         scheduler = lr_scheduler.LambdaLR(optimizer, lambda epoch: 1.0)
     elif optimizer_config["schedule"]["type"] == "linear":
+
         def linear_lr(it):
             return it * optimizer_config["schedule"]["params"]["alpha"] + optimizer_config["schedule"]["params"]["beta"]
 
