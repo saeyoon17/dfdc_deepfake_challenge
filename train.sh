@@ -6,10 +6,10 @@ OPT=$1
 BATCH_SIZE=$2
 LR=$3
 WD=$4
-# echo $OPT
-# echo $BATCH_SIZE
-# echo $LR
-# echo $WD
+echo $OPT
+echo $BATCH_SIZE
+echo $LR
+echo $WD
 
 cat ./dfdc_deepfake_challenge/configs/b7.json | jq .optimizer.type=$1
 cat ./dfdc_deepfake_challenge/configs/b7.json | jq .optimizer.batch_size=$2
