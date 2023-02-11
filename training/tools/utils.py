@@ -96,8 +96,8 @@ def create_optimizer(optimizer_config, lr, wd, model, master_params=None):
     # elif optimizer_config["schedule"]["type"] == "exponential":
     #     scheduler = ExponentialLRScheduler(optimizer, **optimizer_config["schedule"]["params"])
     # elif optimizer_config["schedule"]["type"] == "poly":
-    params = {"max_iter": 100500}
-    scheduler = PolyLR(optimizer, params)
+    # params= {"max_iter": 100500}
+    scheduler = PolyLR(optimizer, 100500)
     # elif optimizer_config["schedule"]["type"] == "constant":
     #     scheduler = lr_scheduler.LambdaLR(optimizer, lambda epoch: 1.0)
     # elif optimizer_config["schedule"]["type"] == "linear":
