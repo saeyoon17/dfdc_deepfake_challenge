@@ -102,6 +102,12 @@ def main():
     arg("--no-hardcore", action="store_true")
     arg("--only-changed-frames", action="store_true")
 
+    # vessl sweep
+    arg("--optimizer", type=str)
+    arg("--batch_size", type=int)
+    arg("--learning_rate", type=float)
+    arg("--weight_decay", type=float)
+
     args = parser.parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
     if args.distributed:
