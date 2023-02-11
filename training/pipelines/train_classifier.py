@@ -81,6 +81,8 @@ def create_val_transforms(size=300):
 
 
 def main():
+    print(sys.path.append(path.dirname(path.dirname(path.abspath(__file__)))))
+    print("debug")
     parser = argparse.ArgumentParser("PyTorch Xview Pipeline")
     arg = parser.add_argument
     arg("--config", metavar="CONFIG_FILE", help="path to configuration file")
@@ -406,6 +408,4 @@ def train_epoch(current_epoch, loss_functions, model, optimizer, scheduler, trai
 
 
 if __name__ == "__main__":
-    print(sys.path.append(path.dirname(path.dirname(path.abspath(__file__)))))
-    print("debug")
-    # main()
+    main()
