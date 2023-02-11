@@ -407,4 +407,4 @@ def train_epoch(current_epoch, loss_functions, model, optimizer, scheduler, trai
 
 if __name__ == "__main__":
     print(sys.path.append(path.dirname(path.dirname(path.abspath(__file__)))))
-    main()
+    # main()
