@@ -64,6 +64,7 @@ def main():
         folds.append(list(range(sz * fold, sz * fold + sz if fold < args.n_splits - 1 else 3)))
     print(folds)
     video_fold = {}
+    print(os.listdir(os.curdir()))
     for d in os.listdir(args.root_dir):
         if "dfdc_train_small" in d and ".zip" not in d:
             print(d)

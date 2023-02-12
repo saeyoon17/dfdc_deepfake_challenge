@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ROOT_DIR='/input/dfdc-small-dataset/small_dataset'
+ROOT_DIR='/input/small_dataset'
 NUM_GPUS='1'
 
 python -u -m torch.distributed.launch --nproc_per_node=$NUM_GPUS --master_port 9902 training/pipelines/train_classifier.py \
