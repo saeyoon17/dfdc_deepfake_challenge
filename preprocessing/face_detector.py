@@ -1,4 +1,5 @@
 import os
+
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -8,6 +9,7 @@ from collections import OrderedDict
 from typing import List
 
 import cv2
+
 cv2.ocl.setUseOpenCL(False)
 cv2.setNumThreads(0)
 
@@ -17,7 +19,6 @@ from torch.utils.data import Dataset
 
 
 class VideoFaceDetector(ABC):
-
     def __init__(self, **kwargs) -> None:
         super().__init__()
 
@@ -32,10 +33,9 @@ class VideoFaceDetector(ABC):
 
 
 class FacenetDetector(VideoFaceDetector):
-
-    def __init__(self, device="cuda:0") -> None:
+    def __init__(self, device="cuda") -> None:
         super().__init__()
-        self.detector = MTCNN(margin=0,thresholds=[0.85, 0.95, 0.95], device=device)
+        self.detector = MTCNN(margin=0, thresholds=[0.85, 0.95, 0.95], device=device)
 
     def _detect_faces(self, frames) -> List:
         batch_boxes, *_ = self.detector.detect(frames, landmarks=False)
@@ -47,7 +47,6 @@ class FacenetDetector(VideoFaceDetector):
 
 
 class VideoDataset(Dataset):
-
     def __init__(self, videos) -> None:
         super().__init__()
         self.videos = videos
