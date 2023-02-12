@@ -23,6 +23,7 @@ cv2.setNumThreads(0)
 
 def get_paths(vid, label, root_dir):
     ori_vid, fake_vid = vid
+    print(os.listdir(os.curdir()))
     ori_dir = os.path.join(root_dir, "crops", ori_vid)
     fake_dir = os.path.join(root_dir, "crops", fake_vid)
     data = []
