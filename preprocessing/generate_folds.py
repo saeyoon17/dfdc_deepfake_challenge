@@ -23,7 +23,6 @@ cv2.setNumThreads(0)
 
 def get_paths(vid, label, root_dir):
     ori_vid, fake_vid = vid
-    print(os.listdir(os.curdir()))
     ori_dir = os.path.join(root_dir, "crops", ori_vid)
     fake_dir = os.path.join(root_dir, "crops", fake_vid)
     data = []
@@ -64,7 +63,6 @@ def main():
         folds.append(list(range(sz * fold, sz * fold + sz if fold < args.n_splits - 1 else 3)))
     print(folds)
     video_fold = {}
-    print(os.listdir(os.curdir()))
     for d in os.listdir(args.root_dir):
         if "dfdc_train_small" in d and ".zip" not in d:
             print(d)
