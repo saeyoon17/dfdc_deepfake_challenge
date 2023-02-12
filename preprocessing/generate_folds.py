@@ -64,6 +64,7 @@ def main():
     print(folds)
     video_fold = {}
     for d in os.listdir(args.root_dir):
+        print(d)
         if "dfdc_train_small" in d and ".zip" not in d:
             print(d)
             part = int(d.split("_")[-1])
