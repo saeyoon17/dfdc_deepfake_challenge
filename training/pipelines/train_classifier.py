@@ -11,9 +11,6 @@ from torch import topk
 import sys
 from os import path
 
-# print(path.dirname(path.dirname(path.abspath(__file__))))
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
 from training import losses
 from training.datasets.classifier_dataset import DeepFakeClassifierDataset
 from training.losses import WeightedLosses
