@@ -121,7 +121,7 @@ def main():
     args = parser.parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
     if args.distributed:
-        torch.cuda.set_device(args.local_rank)
+        # torch.cuda.set_device(args.local_rank)
         torch.distributed.init_process_group(backend="nccl", init_method="env://")
     else:
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -209,12 +209,12 @@ def main():
     data_val.reset(1, args.seed)
     max_epochs = conf["optimizer"]["schedule"]["epochs"]
     # mlops init
-    if args.local_rank == 0:
-        # wandb.init(project="dfdc-deepfake-detection", entity="greenteaboom")
-        # wandb.config = {"annotate": "0210-dfdc-vanilla", "epochs": max_epochs, "batch_size": batch_size}
-        # wandb.run.name = "0210-dfdc-vanilla"
+    # if args.local_rank == 0:
+    # wandb.init(project="dfdc-deepfake-detection", entity="greenteaboom")
+    # wandb.config = {"annotate": "0210-dfdc-vanilla", "epochs": max_epochs, "batch_size": batch_size}
+    # wandb.run.name = "0210-dfdc-vanilla"
 
-        vessl.init(organization="greentea", project="dfdc-deepfake-detection")
+    vessl.init(organization="greentea", project="dfdc-deepfake-detection")
     for epoch in range(start_epoch, max_epochs):
         data_train.reset(epoch, args.seed)
         train_sampler = None
@@ -236,25 +236,25 @@ def main():
         train_epoch(current_epoch, loss_functions, model, optimizer, scheduler, train_data_loader, summary_writer, conf, args.local_rank, args.only_changed_frames)
         model = model.eval()
 
-        if args.local_rank == 0:
-            torch.save(
-                {
-                    "epoch": current_epoch + 1,
-                    "state_dict": model.state_dict(),
-                    "bce_best": bce_best,
-                },
-                args.output_dir + "/" + snapshot_name + "_last",
-            )
-            torch.save(
-                {
-                    "epoch": current_epoch + 1,
-                    "state_dict": model.state_dict(),
-                    "bce_best": bce_best,
-                },
-                args.output_dir + snapshot_name + "_{}".format(current_epoch),
-            )
-            if (epoch + 1) % args.test_every == 0:
-                bce_best = evaluate_val(args, val_data_loader, bce_best, model, snapshot_name=snapshot_name, current_epoch=current_epoch, summary_writer=summary_writer)
+        # if args.local_rank == 0:
+        torch.save(
+            {
+                "epoch": current_epoch + 1,
+                "state_dict": model.state_dict(),
+                "bce_best": bce_best,
+            },
+            args.output_dir + "/" + snapshot_name + "_last",
+        )
+        torch.save(
+            {
+                "epoch": current_epoch + 1,
+                "state_dict": model.state_dict(),
+                "bce_best": bce_best,
+            },
+            args.output_dir + snapshot_name + "_{}".format(current_epoch),
+        )
+        if (epoch + 1) % args.test_every == 0:
+            bce_best = evaluate_val(args, val_data_loader, bce_best, model, snapshot_name=snapshot_name, current_epoch=current_epoch, summary_writer=summary_writer)
         current_epoch += 1
 
 
@@ -263,31 +263,31 @@ def evaluate_val(args, data_val, bce_best, model, snapshot_name, current_epoch, 
     model = model.eval()
 
     bce, probs, targets = validate(model, data_loader=data_val, epoch=current_epoch, local_rank=args.local_rank)
-    if args.local_rank == 0:
-        summary_writer.add_scalar("val/bce", float(bce), global_step=current_epoch)
-        if bce < bce_best:
-            print("Epoch {} improved from {} to {}".format(current_epoch, bce_best, bce))
-            if args.output_dir is not None:
-                torch.save(
-                    {
-                        "epoch": current_epoch + 1,
-                        "state_dict": model.state_dict(),
-                        "bce_best": bce,
-                    },
-                    args.output_dir + snapshot_name + "_best_dice",
-                )
-            bce_best = bce
-            with open("predictions_{}.json".format(args.fold), "w") as f:
-                json.dump({"probs": probs, "targets": targets}, f)
-        torch.save(
-            {
-                "epoch": current_epoch + 1,
-                "state_dict": model.state_dict(),
-                "bce_best": bce_best,
-            },
-            args.output_dir + snapshot_name + "_last",
-        )
-        print("Epoch: {} bce: {}, bce_best: {}".format(current_epoch, bce, bce_best))
+    # if args.local_rank == 0:
+    summary_writer.add_scalar("val/bce", float(bce), global_step=current_epoch)
+    if bce < bce_best:
+        print("Epoch {} improved from {} to {}".format(current_epoch, bce_best, bce))
+        if args.output_dir is not None:
+            torch.save(
+                {
+                    "epoch": current_epoch + 1,
+                    "state_dict": model.state_dict(),
+                    "bce_best": bce,
+                },
+                args.output_dir + snapshot_name + "_best_dice",
+            )
+        bce_best = bce
+        with open("predictions_{}.json".format(args.fold), "w") as f:
+            json.dump({"probs": probs, "targets": targets}, f)
+    torch.save(
+        {
+            "epoch": current_epoch + 1,
+            "state_dict": model.state_dict(),
+            "bce_best": bce_best,
+        },
+        args.output_dir + snapshot_name + "_last",
+    )
+    print("Epoch: {} bce: {}, bce_best: {}".format(current_epoch, bce, bce_best))
     return bce_best
 
 
