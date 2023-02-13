@@ -30,7 +30,9 @@ from albumentations.pytorch.functional import img_to_tensor
 from scipy.ndimage import binary_erosion, binary_dilation
 from skimage import measure
 from torch.utils.data import Dataset
-import dlib
+
+# import dlib
+import math
 
 
 def prepare_bit_masks(mask):
@@ -61,42 +63,42 @@ def prepare_bit_masks(mask):
     return masks
 
 
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("libs/shape_predictor_68_face_landmarks.dat")
+# detector = dlib.get_frontal_face_detector()
+# predictor = dlib.shape_predictor("libs/shape_predictor_68_face_landmarks.dat")
 
 
-def blackout_convex_hull(img):
-    try:
-        rect = detector(img)[0]
-        sp = predictor(img, rect)
-        landmarks = np.array([[p.x, p.y] for p in sp.parts()])
-        outline = landmarks[[*range(17), *range(26, 16, -1)]]
-        Y, X = skimage.draw.polygon(outline[:, 1], outline[:, 0])
-        cropped_img = np.zeros(img.shape[:2], dtype=np.uint8)
-        cropped_img[Y, X] = 1
-        # if random.random() > 0.5:
-        #     img[cropped_img == 0] = 0
-        #     #leave only face
-        #     return img
+# def blackout_convex_hull(img):
+#     try:
+#         rect = detector(img)[0]
+#         sp = predictor(img, rect)
+#         landmarks = np.array([[p.x, p.y] for p in sp.parts()])
+#         outline = landmarks[[*range(17), *range(26, 16, -1)]]
+#         Y, X = skimage.draw.polygon(outline[:, 1], outline[:, 0])
+#         cropped_img = np.zeros(img.shape[:2], dtype=np.uint8)
+#         cropped_img[Y, X] = 1
+#         # if random.random() > 0.5:
+#         #     img[cropped_img == 0] = 0
+#         #     #leave only face
+#         #     return img
 
-        y, x = measure.centroid(cropped_img)
-        y = int(y)
-        x = int(x)
-        first = random.random() > 0.5
-        if random.random() > 0.5:
-            if first:
-                cropped_img[:y, :] = 0
-            else:
-                cropped_img[y:, :] = 0
-        else:
-            if first:
-                cropped_img[:, :x] = 0
-            else:
-                cropped_img[:, x:] = 0
+#         y, x = measure.centroid(cropped_img)
+#         y = int(y)
+#         x = int(x)
+#         first = random.random() > 0.5
+#         if random.random() > 0.5:
+#             if first:
+#                 cropped_img[:y, :] = 0
+#             else:
+#                 cropped_img[y:, :] = 0
+#         else:
+#             if first:
+#                 cropped_img[:, :x] = 0
+#             else:
+#                 cropped_img[:, x:] = 0
 
-        img[cropped_img > 0] = 0
-    except Exception as e:
-        pass
+#         img[cropped_img > 0] = 0
+#     except Exception as e:
+#         pass
 
 
 def dist(p1, p2):
@@ -192,39 +194,39 @@ def blackout_random(image, mask, label):
     return image
 
 
-def blend_original(img):
-    img = img.copy()
-    h, w = img.shape[:2]
-    rect = detector(img)
-    if len(rect) == 0:
-        return img
-    else:
-        rect = rect[0]
-    sp = predictor(img, rect)
-    landmarks = np.array([[p.x, p.y] for p in sp.parts()])
-    outline = landmarks[[*range(17), *range(26, 16, -1)]]
-    Y, X = skimage.draw.polygon(outline[:, 1], outline[:, 0])
-    raw_mask = np.zeros(img.shape[:2], dtype=np.uint8)
-    raw_mask[Y, X] = 1
-    face = img * np.expand_dims(raw_mask, -1)
+# def blend_original(img):
+#     img = img.copy()
+#     h, w = img.shape[:2]
+#     rect = detector(img)
+#     if len(rect) == 0:
+#         return img
+#     else:
+#         rect = rect[0]
+#     sp = predictor(img, rect)
+#     landmarks = np.array([[p.x, p.y] for p in sp.parts()])
+#     outline = landmarks[[*range(17), *range(26, 16, -1)]]
+#     Y, X = skimage.draw.polygon(outline[:, 1], outline[:, 0])
+#     raw_mask = np.zeros(img.shape[:2], dtype=np.uint8)
+#     raw_mask[Y, X] = 1
+#     face = img * np.expand_dims(raw_mask, -1)
 
-    # add warping
-    h1 = random.randint(h - h // 2, h + h // 2)
-    w1 = random.randint(w - w // 2, w + w // 2)
-    while abs(h1 - h) < h // 3 and abs(w1 - w) < w // 3:
-        h1 = random.randint(h - h // 2, h + h // 2)
-        w1 = random.randint(w - w // 2, w + w // 2)
-    face = cv2.resize(face, (w1, h1), interpolation=random.choice([cv2.INTER_LINEAR, cv2.INTER_AREA, cv2.INTER_CUBIC]))
-    face = cv2.resize(face, (w, h), interpolation=random.choice([cv2.INTER_LINEAR, cv2.INTER_AREA, cv2.INTER_CUBIC]))
+#     # add warping
+#     h1 = random.randint(h - h // 2, h + h // 2)
+#     w1 = random.randint(w - w // 2, w + w // 2)
+#     while abs(h1 - h) < h // 3 and abs(w1 - w) < w // 3:
+#         h1 = random.randint(h - h // 2, h + h // 2)
+#         w1 = random.randint(w - w // 2, w + w // 2)
+#     face = cv2.resize(face, (w1, h1), interpolation=random.choice([cv2.INTER_LINEAR, cv2.INTER_AREA, cv2.INTER_CUBIC]))
+#     face = cv2.resize(face, (w, h), interpolation=random.choice([cv2.INTER_LINEAR, cv2.INTER_AREA, cv2.INTER_CUBIC]))
 
-    raw_mask = binary_erosion(raw_mask, iterations=random.randint(4, 10))
-    img[raw_mask, :] = face[raw_mask, :]
-    if random.random() < 0.2:
-        img = OneOf([GaussianBlur(), Blur()], p=0.5)(image=img)["image"]
-    # image compression
-    if random.random() < 0.5:
-        img = ImageCompression(quality_lower=40, quality_upper=95)(image=img)["image"]
-    return img
+#     raw_mask = binary_erosion(raw_mask, iterations=random.randint(4, 10))
+#     img[raw_mask, :] = face[raw_mask, :]
+#     if random.random() < 0.2:
+#         img = OneOf([GaussianBlur(), Blur()], p=0.5)(image=img)["image"]
+#     # image compression
+#     if random.random() < 0.5:
+#         img = ImageCompression(quality_lower=40, quality_upper=95)(image=img)["image"]
+#     return img
 
 
 class DeepFakeClassifierDataset(Dataset):
@@ -284,8 +286,8 @@ class DeepFakeClassifierDataset(Dataset):
                     if os.path.exists(landmark_path) and random.random() < 0.7:
                         landmarks = np.load(landmark_path)
                         image = remove_landmark(image, landmarks)
-                    elif random.random() < 0.2:
-                        blackout_convex_hull(image)
+                    # elif random.random() < 0.2:
+                    #     blackout_convex_hull(image)
                     elif random.random() < 0.1:
                         binary_mask = mask > 0.4 * 255
                         masks = prepare_bit_masks((binary_mask * 1).astype(np.uint8))
