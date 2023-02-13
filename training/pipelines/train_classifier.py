@@ -842,6 +842,12 @@ def main():
     # wandb.run.name = "0210-dfdc-vanilla"
 
     vessl.init(organization="greentea", project="dfdc-deepfake-detection")
+
+    import neptune.new as neptune
+    from neptune.new.types import File
+
+    NEPTUNE_API_TOKEN = "eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJjYWY2NGMxMi0wYWM1LTQwODktOTgyMy1hNjI4NTJiOTY5YjEifQ=="
+    run = neptune.init(project="greenteaboom/dfdc-deepfake-detection-ckpt", api_token=NEPTUNE_API_TOKEN)
     for epoch in range(start_epoch, max_epochs):
         data_train.reset(epoch, args.seed)
         train_sampler = None
@@ -860,7 +866,7 @@ def main():
 
         train_data_loader = DataLoader(data_train, batch_size=batch_size, num_workers=args.workers, shuffle=train_sampler is None, sampler=train_sampler, pin_memory=False, drop_last=True)
 
-        train_epoch(current_epoch, loss_functions, model, optimizer, scheduler, train_data_loader, summary_writer, conf, args.local_rank, args.only_changed_frames)
+        train_epoch(current_epoch, loss_functions, model, run, optimizer, scheduler, train_data_loader, summary_writer, conf, args.local_rank, args.only_changed_frames)
         model = model.eval()
 
         # if args.local_rank == 0:
@@ -880,16 +886,18 @@ def main():
             },
             args.output_dir + snapshot_name + "_{}".format(current_epoch),
         )
+
+        run["model_checkpoints"].upload(args.output_dir + snapshot_name + "_{}".format(current_epoch))
         if (epoch + 1) % args.test_every == 0:
-            bce_best = evaluate_val(args, val_data_loader, bce_best, model, snapshot_name=snapshot_name, current_epoch=current_epoch, summary_writer=summary_writer)
+            bce_best = evaluate_val(args, val_data_loader, bce_best, model, run, snapshot_name=snapshot_name, current_epoch=current_epoch, summary_writer=summary_writer)
         current_epoch += 1
 
 
-def evaluate_val(args, data_val, bce_best, model, snapshot_name, current_epoch, summary_writer):
+def evaluate_val(args, data_val, bce_best, model, run, snapshot_name, current_epoch, summary_writer):
     print("Test phase")
     model = model.eval()
 
-    bce, probs, targets = validate(model, data_loader=data_val, epoch=current_epoch, local_rank=args.local_rank)
+    bce, probs, targets = validate(model, run, data_loader=data_val, epoch=current_epoch, local_rank=args.local_rank)
     # if args.local_rank == 0:
     summary_writer.add_scalar("val/bce", float(bce), global_step=current_epoch)
     if bce < bce_best:
@@ -918,7 +926,7 @@ def evaluate_val(args, data_val, bce_best, model, snapshot_name, current_epoch, 
     return bce_best
 
 
-def validate(net, data_loader, prefix="", epoch=-1, local_rank=-1):
+def validate(net, run, data_loader, prefix="", epoch=-1, local_rank=-1):
     probs = defaultdict(list)
     targets = defaultdict(list)
 
@@ -959,11 +967,13 @@ def validate(net, data_loader, prefix="", epoch=-1, local_rank=-1):
     if local_rank == 0:
         # wandb.log({"val_fake_loss": fake_loss, "val_real_loss": real_loss, "val_loss": (fake_loss + real_loss) / 2, "val_accuracy": valid_accuracy})
         vessl.log(step=epoch, payload={"val_fake_loss": fake_loss, "val_real_loss": real_loss, "val_loss": (fake_loss + real_loss) / 2, "val_accuracy": valid_accuracy})
+        run["metrics/validation_accuracy"].log(valid_accuracy)
+        run["metrics/validation_loss"].log((fake_loss + real_loss) / 2)
 
     return (fake_loss + real_loss) / 2, probs, targets
 
 
-def train_epoch(current_epoch, loss_functions, model, optimizer, scheduler, train_data_loader, summary_writer, conf, local_rank, only_valid):
+def train_epoch(current_epoch, loss_functions, model, run, optimizer, scheduler, train_data_loader, summary_writer, conf, local_rank, only_valid):
     losses = AverageMeter()
     fake_losses = AverageMeter()
     real_losses = AverageMeter()
@@ -1029,6 +1039,7 @@ def train_epoch(current_epoch, loss_functions, model, optimizer, scheduler, trai
         summary_writer.add_scalar("train/loss", float(losses.avg), global_step=current_epoch)
         # log per epoch
         vessl.log(step=current_epoch, payload={"fake_loss": float(fake_losses.avg), "real_loss": float(real_losses.avg), "loss": float(losses.avg)})
+        run["metrics/train_loss"].log(float(losses.avg))
 
 
 if __name__ == "__main__":
