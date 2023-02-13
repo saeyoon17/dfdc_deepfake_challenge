@@ -1,8 +1,8 @@
 albumentations
-facenet-pytorch
 numpy
 pandas
 timm
 torch
+opencv-python==4.5.5.64
 torchvision
 scikit-learn
