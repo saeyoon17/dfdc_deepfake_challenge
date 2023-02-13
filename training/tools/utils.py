@@ -1,7 +1,7 @@
 import cv2
 
 # from apex.optimizers import FusedAdam, FusedSGD
-from timm.optim import AdamW
+# from timm.optim import AdamW
 from torch import optim
 from torch.optim import lr_scheduler
 from torch.optim.rmsprop import RMSprop

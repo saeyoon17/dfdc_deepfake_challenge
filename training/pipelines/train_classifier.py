@@ -30,10 +30,10 @@ cv2.setNumThreads(0)
 import numpy as np
 from albumentations import Compose, RandomBrightnessContrast, HorizontalFlip, FancyPCA, HueSaturationValue, OneOf, ToGray, ShiftScaleRotate, ImageCompression, PadIfNeeded, GaussNoise, GaussianBlur
 
-from apex.parallel import DistributedDataParallel, convert_syncbn_model
+#from apex.parallel import DistributedDataParallel, convert_syncbn_model
 from tensorboardX import SummaryWriter
 
-from apex import amp
+#from apex import amp
 
 import torch
 from torch.backends import cudnn
@@ -196,15 +196,15 @@ def main():
         start_epoch = 0
     current_epoch = start_epoch
 
-    if conf["fp16"]:
-        model, optimizer = amp.initialize(model, optimizer, opt_level=args.opt_level, loss_scale="dynamic")
+    # if conf["fp16"]:
+    #     model, optimizer = amp.initialize(model, optimizer, opt_level=args.opt_level, loss_scale="dynamic")
 
     snapshot_name = "{}{}_{}_{}".format(conf.get("prefix", args.prefix), conf["network"], conf["encoder"], args.fold)
 
-    if args.distributed:
-        model = DistributedDataParallel(model, delay_allreduce=True)
-    else:
-        model = DataParallel(model).cuda()
+    # if args.distributed:
+    #     model = DistributedDataParallel(model, delay_allreduce=True)
+    # else:
+    model = DataParallel(model).cuda()
 
     data_val.reset(1, args.seed)
     max_epochs = conf["optimizer"]["schedule"]["epochs"]
@@ -382,12 +382,12 @@ def train_epoch(current_epoch, loss_functions, model, optimizer, scheduler, trai
         # if local_rank == 0:
         #     wandb.log({"fake_loss": fake_loss, "real_loss": real_loss, "loss": (fake_loss + real_loss) / 2})
 
-        if conf["fp16"]:
-            with amp.scale_loss(loss, optimizer) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            loss.backward()
-        torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), 1)
+        # if conf["fp16"]:
+        #     with amp.scale_loss(loss, optimizer) as scaled_loss:
+        #         scaled_loss.backward()
+        # else:
+        loss.backward()
+        # torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), 1)
         optimizer.step()
         torch.cuda.synchronize()
         if conf["optimizer"]["schedule"]["mode"] in ("step", "poly"):

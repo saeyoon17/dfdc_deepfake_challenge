@@ -3,7 +3,7 @@
     "encoder": "tf_efficientnet_b7_ns",
     "batches_per_epoch": 2500,
     "size": 380,
-    "fp16": true,
+    "fp16": false,
     "optimizer": {
         "batch_size": 12,
         "type": "SGD",

@@ -5,5 +5,4 @@ pandas
 timm
 torch
 torchvision
-wandb
 scikit-learn
