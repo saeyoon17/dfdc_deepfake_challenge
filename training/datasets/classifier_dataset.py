@@ -284,6 +284,15 @@ class DeepFakeClassifierDataset(Dataset):
                                 image *= np.expand_dims(bitmap_msk, axis=-1)
                                 break
                             current_try += 1
+                    elif random.random() < 0.5:
+                        import composer.functional as cf
+                        from composer.algorithms.utils import augmentation_sets
+
+                        def randaugment_image(image):
+                            randaugmented_image = cf.randaugment_image(img=image, severity=9, depth=2, augmentation_set=augmentation_sets["all"])
+                            return randaugmented_image
+
+                        image = randaugment_image(image)
                 if self.mode == "train" and self.padding_part > 3:
                     image = change_padding(image, self.padding_part)
                 valid_label = np.count_nonzero(mask[mask > 20]) > 32 or label < 0.5

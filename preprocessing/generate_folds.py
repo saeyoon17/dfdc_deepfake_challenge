@@ -23,7 +23,7 @@ from glob import glob
 
 def get_original_with_fakes(root_dir):
     pairs = []
-    for json_path in glob(os.path.join(root_dir, "*/small_metadata.json")):
+    for json_path in glob(os.path.join(root_dir, "*/metadata.json")):
         with open(json_path, "r") as f:
             metadata = json.load(f)
         for k, v in metadata.items():
@@ -82,8 +82,8 @@ def main():
             print(d)
             part = int(d.split("_")[-1])
             for f in os.listdir(os.path.join(args.root_dir, d)):
-                if "small_metadata.json" in f:
-                    with open(os.path.join(args.root_dir, d, "small_metadata.json")) as metadata_json:
+                if "metadata.json" in f:
+                    with open(os.path.join(args.root_dir, d, "metadata.json")) as metadata_json:
                         metadata = json.load(metadata_json)
 
                     for k, v in metadata.items():
