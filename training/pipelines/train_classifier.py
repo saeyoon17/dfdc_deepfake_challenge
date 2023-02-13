@@ -848,6 +848,11 @@ def main():
 
     NEPTUNE_API_TOKEN = "eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJjYWY2NGMxMi0wYWM1LTQwODktOTgyMy1hNjI4NTJiOTY5YjEifQ=="
     run = neptune.init(project="greenteaboom/dfdc-deepfake-detection-ckpt", api_token=NEPTUNE_API_TOKEN)
+
+    project = neptune.init_project(
+        name="greenteaboom/dfdc-deepfake-detection-ckpt",
+        api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJjYWY2NGMxMi0wYWM1LTQwODktOTgyMy1hNjI4NTJiOTY5YjEifQ==",
+    )
     for epoch in range(start_epoch, max_epochs):
         data_train.reset(epoch, args.seed)
         train_sampler = None
@@ -887,7 +892,7 @@ def main():
             args.output_dir + snapshot_name + "_{}".format(current_epoch),
         )
 
-        run["model_checkpoints/dfdc-checkpoint"].upload(args.output_dir + snapshot_name + "_{}".format(current_epoch))
+        project["model_checkpoints/dfdc-checkpoint"].upload(args.output_dir + snapshot_name + "_{}".format(current_epoch))
         print(args.output_dir + snapshot_name + "_{}".format(current_epoch))
         if (epoch + 1) % args.test_every == 0:
             bce_best = evaluate_val(args, val_data_loader, bce_best, model, run, snapshot_name=snapshot_name, current_epoch=current_epoch, summary_writer=summary_writer)
