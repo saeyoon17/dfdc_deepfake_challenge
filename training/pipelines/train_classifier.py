@@ -395,6 +395,7 @@ class DeepFakeClassifierDataset(Dataset):
 
 
 from torch import nn
+from typing import Any
 
 
 class WeightedLosses(nn.Module):
