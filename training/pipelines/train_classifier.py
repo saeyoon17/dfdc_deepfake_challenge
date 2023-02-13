@@ -125,7 +125,7 @@ def main():
         torch.distributed.init_process_group(backend="nccl", init_method="env://")
     else:
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+        # os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
     cudnn.benchmark = True
 
