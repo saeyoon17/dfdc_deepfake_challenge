@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#ROOT_DIR='/input/small_dataset'
-ROOT_DIR='/home/coinse/greentea/src/dfdc_deepfake_challenge/data_root'
+ROOT_DIR='/input/small_dataset'
+# ROOT_DIR='/home/coinse/greentea/src/dfdc_deepfake_challenge/data_root'
 NUM_GPUS='1'
 
 python -u -m torch.distributed.launch --nproc_per_node=$NUM_GPUS --master_port 9902 training/pipelines/train_classifier.py \
