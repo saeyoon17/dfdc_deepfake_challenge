@@ -181,7 +181,7 @@ def main():
     if args.resume:
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume, map_location="cuda")
+            checkpoint = torch.load(args.resume, map_location="gpu")
             state_dict = checkpoint["state_dict"]
             state_dict = {k[7:]: w for k, w in state_dict.items()}
             model.load_state_dict(state_dict, strict=False)

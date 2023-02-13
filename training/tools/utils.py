@@ -1,5 +1,6 @@
 import cv2
-from apex.optimizers import FusedAdam, FusedSGD
+
+# from apex.optimizers import FusedAdam, FusedSGD
 from timm.optim import AdamW
 from torch import optim
 from torch.optim import lr_scheduler
@@ -74,12 +75,12 @@ def create_optimizer(optimizer_config, lr, wd, model, master_params=None):
     nes = True
     if optimizer_config == "SGD":
         optimizer = optim.SGD(params, lr=lr, momentum=mmt, weight_decay=wd, nesterov=nes)
-    elif optimizer_config == "FusedSGD":
-        optimizer = FusedSGD(params, lr=lr, momentum=mmt, weight_decay=wd, nesterov=nes)
+    # elif optimizer_config == "FusedSGD":
+    #     optimizer = FusedSGD(params, lr=lr, momentum=mmt, weight_decay=wd, nesterov=nes)
     elif optimizer_config == "Adam":
         optimizer = optim.Adam(params, lr=lr, weight_decay=wd)
-    elif optimizer_config == "FusedAdam":
-        optimizer = FusedAdam(params, lr=lr, weight_decay=wd)
+    # elif optimizer_config == "FusedAdam":
+    #     optimizer = FusedAdam(params, lr=lr, weight_decay=wd)
     elif optimizer_config == "AdamW":
         optimizer = AdamW(params, lr=lr, weight_decay=wd)
     elif optimizer_config == "RmsProp":
