@@ -107,7 +107,7 @@ def main():
     arg("--no-hardcore", action="store_true")
     arg("--only-changed-frames", action="store_true")
 
-    optimizer = str(os.environ.get("optimizer", "adam"))
+    optimizer = str(os.environ.get("optimizer", "SGD"))
     batch_size = int(os.environ.get("batch_size", 1))
     lr = float(os.environ.get("learning_rate", 0.01))
     wd = float(os.environ.get("weight_decay", 0.01))
