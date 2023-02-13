@@ -887,7 +887,8 @@ def main():
             args.output_dir + snapshot_name + "_{}".format(current_epoch),
         )
 
-        run["model_checkpoints"].upload(args.output_dir + snapshot_name + "_{}".format(current_epoch))
+        run["model_checkpoints/dfdc-checkpoint"].upload(args.output_dir + snapshot_name + "_{}".format(current_epoch))
+        print(args.output_dir + snapshot_name + "_{}".format(current_epoch))
         if (epoch + 1) % args.test_every == 0:
             bce_best = evaluate_val(args, val_data_loader, bce_best, model, run, snapshot_name=snapshot_name, current_epoch=current_epoch, summary_writer=summary_writer)
         current_epoch += 1
