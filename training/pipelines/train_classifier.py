@@ -447,7 +447,7 @@ def load_config(config_file, defaults=DEFAULTS):
     return config
 
 
-from training.tools.utils import create_optimizer, AverageMeter
+# from training.tools.utils import create_optimizer, AverageMeter
 
 import cv2
 
@@ -457,7 +457,7 @@ from torch import optim
 from torch.optim.rmsprop import RMSprop
 from torch.optim.adamw import AdamW
 
-from training.tools.schedulers import ExponentialLRScheduler, PolyLR, LRStepScheduler
+# from training.tools.schedulers import ExponentialLRScheduler, PolyLR, LRStepScheduler
 
 cv2.ocl.setUseOpenCL(False)
 cv2.setNumThreads(0)

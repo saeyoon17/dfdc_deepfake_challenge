@@ -13,12 +13,25 @@ import pandas as pd
 
 from tqdm import tqdm
 
-from preprocessing.utils import get_original_with_fakes
-
 import cv2
 
 cv2.ocl.setUseOpenCL(False)
 cv2.setNumThreads(0)
+
+from glob import glob
+
+
+def get_original_with_fakes(root_dir):
+    pairs = []
+    for json_path in glob(os.path.join(root_dir, "*/small_metadata.json")):
+        with open(json_path, "r") as f:
+            metadata = json.load(f)
+        for k, v in metadata.items():
+            original = v.get("original", None)
+            if v["label"] == "FAKE":
+                pairs.append((original[:-4], k[:-4]))
+
+    return pairs
 
 
 def get_paths(vid, label, root_dir):
